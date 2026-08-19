@@ -38,7 +38,12 @@ chmod +x dcs && sudo mv dcs /usr/local/bin/dcs
 ## 安装
 
 ```bash
-dsh plugin --profile web add dsh-dcs-cloud
+# 从 GitHub 安装（推荐）
+dsh plugin --profile web add github:xuxun-oss/DCS-Harness
+
+# 或本地目录安装
+dsh plugin --profile web add /path/to/DCS-Harness
+
 # 然后重启 dsh web（或按 dsh 的插件热载提示操作）
 ```
 
