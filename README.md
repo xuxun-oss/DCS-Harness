@@ -8,19 +8,24 @@ DeepSeek Harness 插件：接入 BGI Research 发布的 [**dcs CLI**](https://gi
 
 | 工具 | 作用 |
 | --- | --- |
-| `dcs_login` / `dcs_status` / `dcs_configure` | PAT 登录、查看当前项目/片区、本地配置 |
+| `dcs_atlas` | 查看「数据库全图谱」：11 片区公共库 + 官方组学工具库（8 大类）+ 关键词映射 + 检索优先级 |
+| `dcs_login` / `dcs_status` / `dcs_configure` | PAT 登录、查看当前项目/片区、本地配置（含 Genpilot LLM key） |
 | `dcs_data_ls` / `dcs_data_find` / `dcs_data_info` | 在 DCS 数据管理（`/Files` 文件结构）检索数据（**第一优先级**：平台公共库） |
 | `dcs_data_download` | 下载数据到本机（**第二优先级**：外部数据获取） |
 | `dcs_workflow_search` / `dcs_workflow_info` | 检索并查看 Genpilot 现有流程（WDL）与参数规格、多步规划（**第一优先级**：复用现有脚本/方案） |
 | `dcs_terminal_exec` / `dcs_terminal_file` | 在线容器（Genpilot 智能分析环境）执行 / 读写文件（**第二优先级**：在线写新脚本、简单任务在线运行） |
-| `dcs_offline_run` | 离线任务投递（shell，长任务 / 资源大 / 需并行，`-p` 批量并行） |
+| `dcs_offline_run` / `dcs_parallel_run` | 离线任务投递（长任务/资源大/需并行）；`dcs_parallel_run` 按 `{i}` 分片并行投递 |
 | `dcs_workflow_run` | 投递 WDL 工作流任务 |
 | `dcs_task_status` | 跟踪离线任务与 WDL 任务状态 / 日志 |
+| `dcs_llm` | 调用 DCS 托管 Genpilot LLM（deepseek-v4-pro）做解读 / 文献综合 / 写作 |
+| `dcs_plan` | 生成 Genpilot 风格 Plan.md（步骤进度表 + 产物路径 + 方法学 + 总结） |
 | `dcs_audit_script` | 执行前静态审计脚本（危险命令 / 硬编码密钥 / 注入 / 资源镜像配置） |
 | `dcs_generate_report` | 把结果、图表、方法按学术逻辑整理成自包含 HTML 网页 |
 | `dcs_cli` | 通用透传任意 `dcs` 命令（逃生舱） |
 
 插件通过 systemPrompt 注入上面的流程引导，让 agent 自动按「公共库优先、现有脚本优先、审计后执行、离线并行、网页交付」的规则推进。
+
+详细图谱见 [`docs/dcs-database-atlas.md`](docs/dcs-database-atlas.md)（片区公共库、官方组学工具库、Genpilot 使用范式）。
 
 ## 前置：dcs CLI 与 PAT
 
@@ -52,18 +57,22 @@ dsh plugin --profile web add /path/to/DCS-Harness
 ## 安全说明
 
 - PAT 仅运行时使用，交给 `dcs` 自身**加密存储**在 `~/.dcs/config.yaml`，本插件**不落盘明文 PAT**。
-- 插件本地配置（二进制路径、自动下载开关）存于 `~/.dsh/dcs-cloud.json`。
+- 插件本地配置（二进制路径、自动下载开关、Genpilot LLM key）存于 `~/.dsh/dcs-cloud.json`。
+- `dcs_pat_`（CLI 认证）、`LLM_API_KEY`（Genpilot LLM）、`GENOS_API_KEY`（Genos 模型）三者互不相同，请勿混用。
 - `dcs_data_rm`、`dcs_task_cancel/rm` 等破坏性命令**不会**由高层工具直接触发；如需使用请走 `dcs_cli` 透传，并确认后果。
 - 执行前请用 `dcs_audit_script` 审计脚本。
 
 ## 目录
 
 ```
-lib/index.js         宿主半：17 个工具 + systemPrompt 流程引导
-lib/dcs-client.js    dcs 二进制管理（下载/校验）、PAT 登录、命令执行与 JSON 解析
+lib/index.js         宿主半：21 个工具 + systemPrompt 流程引导
+lib/dcs-client.js    dcs 二进制管理（下载/校验）、PAT 登录、命令执行、Genpilot LLM 调用
+lib/atlas.js         数据库全图谱（片区/官方工具库/关键词映射/Genpilot 范式）
 lib/audit.js         脚本静态审计（shell/python/WDL 分级报告）
+lib/plan.js          Plan.md 生成（Genpilot 执行计划文档）
 lib/report.js        学术 HTML 报告生成（图片 base64 内嵌）
-docs/dcs-cli-reference.md   dcs CLI 完整能力图谱（命令/参数/JSON 输出）
+docs/dcs-cli-reference.md     dcs CLI 完整能力图谱（命令/参数/JSON 输出）
+docs/dcs-database-atlas.md    数据库全图谱（片区公共库/官方工具库/Genpilot 范式）
 cordis.patch.yml     组合 patch（insert 行）
 package.json         包元数据（dsh.bundle）
 ```
