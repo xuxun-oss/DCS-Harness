@@ -8,8 +8,12 @@ DeepSeek Harness 插件：接入 BGI Research 发布的 [**dcs CLI**](https://gi
 
 | 工具 | 作用 |
 | --- | --- |
-| `dcs_atlas` | 查看「数据库全图谱」：11 片区公共库 + 官方组学工具库（8 大类）+ 关键词映射 + 检索优先级 |
-| `dcs_login` / `dcs_status` / `dcs_configure` | PAT 登录、查看当前项目/片区、本地配置（含 Genpilot LLM key） |
+| `dcs_atlas` | 查看「数据库全图谱」：11 片区公共库 + 官方组学工具库（8 大类）+ 关键词映射 + 容器公共数据集 |
+| `dcs_public_search` | 直接搜索 DCS 公共库（公共数据/流程/项目/AI模型，走 REST API，最快找公共数据） |
+| `dcs_container_ls` | 列在线容器目录（`/public` 公共库挂载、`/work` 已有分析） |
+| `dcs_data_inspect` | 快速查看 h5ad/csv 结构（细胞类型 annotation / 脑区 / 基因，不加载矩阵） |
+| `dcs_find_results` | 查找 /work 里 Genpilot 已跑的分析结果，避免重复计算 |
+| `dcs_login` / `dcs_status` / `dcs_configure` | PAT 登录、查看当前项目/片区、本地配置 |
 | `dcs_data_ls` / `dcs_data_find` / `dcs_data_info` | 在 DCS 数据管理（`/Files` 文件结构）检索数据（**第一优先级**：平台公共库） |
 | `dcs_data_download` | 下载数据到本机（**第二优先级**：外部数据获取） |
 | `dcs_workflow_search` / `dcs_workflow_info` | 检索并查看 Genpilot 现有流程（WDL）与参数规格、多步规划（**第一优先级**：复用现有脚本/方案） |
@@ -65,9 +69,9 @@ dsh plugin --profile web add /path/to/DCS-Harness
 ## 目录
 
 ```
-lib/index.js         宿主半：21 个工具 + systemPrompt 流程引导
-lib/dcs-client.js    dcs 二进制管理（下载/校验）、PAT 登录、命令执行、Genpilot LLM 调用
-lib/atlas.js         数据库全图谱（片区/官方工具库/关键词映射/Genpilot 范式）
+lib/index.js         宿主半：25 个工具 + systemPrompt 流程引导
+lib/dcs-client.js    dcs 二进制管理、PAT 登录、命令执行、公共库检索
+lib/atlas.js         数据库全图谱（片区/官方工具库/关键词映射/容器公共数据集/Genpilot 范式）
 lib/audit.js         脚本静态审计（shell/python/WDL 分级报告）
 lib/plan.js          Plan.md 生成（Genpilot 执行计划文档）
 lib/report.js        学术 HTML 报告生成（图片 base64 内嵌）
