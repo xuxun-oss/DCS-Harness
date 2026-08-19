@@ -88,10 +88,10 @@ output/              结果产物
 - Genpilot LLM：`https://dcsapi.dcs.cloud/api/aigress/unified/v1/chat/completions`（OpenAI 兼容）
 - 模型：`deepseek-v4-pro`
 
-**三类密钥互不相同**
-- `dcs_pat_...` → dcs CLI 认证
-- `LLM_API_KEY` → Genpilot LLM
-- `GENOS_API_KEY` → Genos 模型
+**Genpilot LLM 与 Genos 均为系统自带**
+- 自动鉴权、模型自动选择，**无需额外填写 API key**。
+- 鉴权由 DCS 在线容器环境自动注入（`DCS_X_ACCESS_TOKEN` / `DCS_OPENSANDBOX_TOKEN`，或系统自动生成的 `.env`）。
+- 唯一需要用户提供的是 `dcs_pat_...`（仅用于 `dcs` CLI 登录）。
 
 ## 6. 插件工具对应
 

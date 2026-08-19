@@ -57,8 +57,8 @@ dsh plugin --profile web add /path/to/DCS-Harness
 ## 安全说明
 
 - PAT 仅运行时使用，交给 `dcs` 自身**加密存储**在 `~/.dcs/config.yaml`，本插件**不落盘明文 PAT**。
-- 插件本地配置（二进制路径、自动下载开关、Genpilot LLM key）存于 `~/.dsh/dcs-cloud.json`。
-- `dcs_pat_`（CLI 认证）、`LLM_API_KEY`（Genpilot LLM）、`GENOS_API_KEY`（Genos 模型）三者互不相同，请勿混用。
+- 插件本地配置（二进制路径、自动下载开关）存于 `~/.dsh/dcs-cloud.json`。
+- **Genpilot LLM 与 Genos 模型为 DCS 系统自带**：自动鉴权、模型自动选择，无需额外填写 API key；唯一需要的是 `dcs_pat_...`（仅用于 dcs CLI 登录）。
 - `dcs_data_rm`、`dcs_task_cancel/rm` 等破坏性命令**不会**由高层工具直接触发；如需使用请走 `dcs_cli` 透传，并确认后果。
 - 执行前请用 `dcs_audit_script` 审计脚本。
 
