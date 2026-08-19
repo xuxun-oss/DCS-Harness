@@ -1,0 +1,6 @@
+# dsh-dcs-cloud — bundle patch layer.
+# `dsh plugin --profile <name> add dsh-dcs-cloud` 会把本包加入 dsh.profile.bundles，
+# 然后应用此 patch：下面这行把包主入口（lib/index.js）作为宿主半（普通 Cordis 插件）加载。
+- insert:
+    - id: dsh-dcs-cloud
+      name: dsh-dcs-cloud
