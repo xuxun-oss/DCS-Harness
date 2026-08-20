@@ -55,10 +55,11 @@ DCS Cloud 有 11 个片区，分两类：**BGI 中心节点**（官方 DCS 流�
 ## 4. 找数据优先级
 
 1. **定组学类别**：按研究问题关键词 → 类别。
-2. **官方流程优先**：`dcs_workflow_search(public=true)`，命中 official_tag=DCS 最稳。
-3. **公共库最全片区**：BGI-时空（官方 103）/ DCS-华南1（总量 924）/ DCS-华北2（596）。
-4. **数据文件**：`dcs_data_find` 在 `/Files` 全库按名称/类型/样本/SN/流程过滤；参考基因组在 `/Files/ReferenceData`。
-5. **流程参数**：`dcs_workflow_info` 看 check_parameter（必填项）与 plan（多步规划）。
+2. **找公共数据优先查容器 `/public`**：`dcs_container_ls` 列 `/public` 与 `/public/database/CNGBdb/pub/SciRAID/stomics/`（STDS 编号数据集），`dcs_data_inspect` 看 h5ad 结构；容器 `/public` 里没有的元数据或跨片区资源再用 `dcs_public_search` 搜公共库。
+3. **官方流程优先**：`dcs_workflow_search(public=true)`，命中 official_tag=DCS 最稳。
+4. **公共库最全片区**：BGI-时空（官方 103）/ DCS-华南1（总量 924）/ DCS-华北2（596）。
+5. **数据文件补充**：`dcs_data_find` 在 `/Files` 全库按名称/类型/样本/SN/流程过滤；参考基因组在 `/Files/ReferenceData`。
+6. **流程参数**：`dcs_workflow_info` 看 check_parameter（必填项）与 plan（多步规划）。
 
 ## 5. Genpilot 智能分析使用范式（实测自 PGP 项目）
 

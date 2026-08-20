@@ -2,6 +2,12 @@
 
 本项目的所有显著变更记录于此。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.5.1] - 2026-08-20
+
+### 变更
+
+- 找数据优先级调整：默认**优先查在线容器 `/public` 公共数据**（`dcs_container_ls`），`dcs_public_search` 降为容器外的元数据补充/跨片区检索；同步更新 systemPrompt、`dcs_atlas` 图谱 hints、工具描述与 README/docs。
+
 ## [0.5.0] - 2026-08-20
 
 ### 新增

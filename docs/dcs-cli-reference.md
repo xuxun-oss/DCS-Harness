@@ -75,7 +75,7 @@
 
 | 需求 | dcs 命令 |
 | --- | --- |
-| 数据检索（公共库优先） | `data ls/find/info` |
+| 数据检索（容器 `/public` 优先） | `data ls/find/info` + `terminal exec ls /public` |
 | 外部数据（次优） | `data download -T web/ossutil/...` |
 | 现有脚本/方案（Genpilot 优先） | `workflow ls -p` + `workflow info/plan/check_parameter` + `project omics_tools` |
 | 重写脚本（次优） | `terminal create/edit` 写脚本 |
