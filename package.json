@@ -1,6 +1,6 @@
 {
   "name": "dsh-dcs-cloud",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "DeepSeek Harness 插件：接入 BGI Research 的 dcs CLI，面向 DCS Cloud 的基因组/时空组学生信研究编排 —— 数据检索、Genpilot 流程复用、在线容器、离线任务投递、脚本审计与学术报告生成。",
   "keywords": [
     "deepseek",
@@ -20,6 +20,7 @@
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./client": "./lib/client.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -30,12 +31,19 @@
   ],
   "license": "MIT",
   "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ],
+      "platform": "web"
+    },
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-tools": "*"
+    "@deepseek-ai/dsh-tools": "*",
+    "react": "^18.2.0"
   },
   "engines": {
     "node": ">=18.0.0"

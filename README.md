@@ -21,11 +21,24 @@ DeepSeek Harness 插件：接入 BGI Research 发布的 [**dcs CLI**](https://gi
 | `dcs_offline_run` / `dcs_parallel_run` | 离线任务投递（长任务/资源大/需并行）；`dcs_parallel_run` 按 `{i}` 分片并行投递 |
 | `dcs_workflow_run` | 投递 WDL 工作流任务 |
 | `dcs_task_status` | 跟踪离线任务与 WDL 任务状态 / 日志 |
+| `dcs_task_update` / `dcs_step_status` | 把「分析计划 + 数据源 + 步骤依赖关系 + 进展」写入「DCS 任务」面板（浏览器 tab） |
 | `dcs_llm` | 调用 DCS 托管 Genpilot LLM（deepseek-v4-pro）做解读 / 文献综合 / 写作 |
 | `dcs_plan` | 生成 Genpilot 风格 Plan.md（步骤进度表 + 产物路径 + 方法学 + 总结） |
 | `dcs_audit_script` | 执行前静态审计脚本（危险命令 / 硬编码密钥 / 注入 / 资源镜像配置） |
 | `dcs_generate_report` | 把结果、图表、方法按学术逻辑整理成自包含 HTML 网页 |
 | `dcs_cli` | 通用透传任意 `dcs` 命令（逃生舱） |
+
+## 「DCS 任务」面板（浏览器 UI）
+
+插件在 DSH web 的对话视图里增加一个 **「DCS 任务」tab**（`conversation.view`），除了对话外，可视化展示：
+
+- **分析计划**：任务标题、研究目标、步骤清单；
+- **数据源**：每步用到的数据（名称 / 路径 / 类型）；
+- **步骤逻辑关系**：步骤间的依赖（`依赖 → step1 → step2`）；
+- **分析细节**：每步的说明与输出；
+- **执行进展**：每步状态（待执行/进行中/已完成/失败/受阻）+ 进度条，5 秒自动刷新。
+
+数据由 agent 通过 `dcs_task_update`（建任务/写步骤）和 `dcs_step_status`（单步推进）写入，存于 `~/.dsh/dcs-cloud-tasks.json`。
 
 插件通过 systemPrompt 注入上面的流程引导，让 agent 自动按「公共库优先、现有脚本优先、审计后执行、离线并行、网页交付」的规则推进。
 
