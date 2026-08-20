@@ -33,12 +33,24 @@ DeepSeek Harness 插件：接入 BGI Research 发布的 [**dcs CLI**](https://gi
 插件在 DSH web 的对话视图里增加一个 **「DCS 任务」tab**（`conversation.view`），除了对话外，可视化展示：
 
 - **分析计划**：任务标题、研究目标、步骤清单；
+- **模型 / 资源**：当前任务使用的 Genpilot 模型（下拉切换，自动持久化）与计算资源规格；
 - **数据源**：每步用到的数据（名称 / 路径 / 类型）；
 - **步骤逻辑关系**：步骤间的依赖（`依赖 → step1 → step2`）；
-- **分析细节**：每步的说明与输出；
-- **执行进展**：每步状态（待执行/进行中/已完成/失败/受阻）+ 进度条，5 秒自动刷新。
+- **分析细节**：每步的说明与输出、交付物（数据集 / 结果 / 图表 / 报告 / 文件）；
+- **执行进展**：每步状态（待执行/进行中/已完成/失败/受阻）+ 进度条，5 秒自动刷新；
+- **离线任务与资源消耗**：最近 10 个离线任务（`dcs analysis`）的子任务状态、资源规格、费用与镜像，5 秒自动刷新。
 
-数据由 agent 通过 `dcs_task_update`（建任务/写步骤）和 `dcs_step_status`（单步推进）写入，存于 `~/.dsh/dcs-cloud-tasks.json`。
+数据由 agent 通过 `dcs_task_update`（建任务/写步骤，可带 `model`/`resources`）和 `dcs_step_status`（单步推进）写入，存于 `~/.dsh/dcs-cloud-tasks.json`；离线任务清单实时读 `dcs analysis ls/info`。
+
+## 「DCS Cloud」设置页（浏览器 UI）
+
+插件还在 DSH 设置（`settings.section`，导航栏「DCS Cloud」）里提供一个配置页，**无需在对话中操作**即可完成：
+
+- 填写/保存 **PAT**（`dcs_pat_...`）并一键登录、测试连接；
+- 展示当前登录态（用户名 / 片区 / 项目）；
+- 配置 `dcs` CLI 二进制路径与自动下载开关（`auto` / `never`）。
+
+配置写入 `~/.dsh/dcs-cloud.json`，与 `dcs_login` / `dcs_configure` 工具共用同一份配置。
 
 插件通过 systemPrompt 注入上面的流程引导，让 agent 自动按「公共库优先、现有脚本优先、审计后执行、离线并行、网页交付」的规则推进。
 
@@ -73,7 +85,7 @@ dsh plugin --profile web add /path/to/DCS-Harness
 
 ## 安全说明
 
-- PAT 仅运行时使用，交给 `dcs` 自身**加密存储**在 `~/.dcs/config.yaml`，本插件**不落盘明文 PAT**。
+- PAT 仅运行时使用：交给 `dcs` 自身**加密存储**在 `~/.dcs/config.yaml`；同时为直连公共库检索 API 而缓存于 `~/.dsh/dcs-cloud.json`（本机私有文件，写入时设为 `0600` 权限，不通过任何接口外发）。
 - 插件本地配置（二进制路径、自动下载开关）存于 `~/.dsh/dcs-cloud.json`。
 - **Genpilot LLM 与 Genos 模型为 DCS 系统自带**：自动鉴权、模型自动选择，无需额外填写 API key；唯一需要的是 `dcs_pat_...`（仅用于 dcs CLI 登录）。
 - `dcs_data_rm`、`dcs_task_cancel/rm` 等破坏性命令**不会**由高层工具直接触发；如需使用请走 `dcs_cli` 透传，并确认后果。
@@ -82,12 +94,14 @@ dsh plugin --profile web add /path/to/DCS-Harness
 ## 目录
 
 ```
-lib/index.js         宿主半：25 个工具 + systemPrompt 流程引导
+lib/index.js         宿主半：27 个工具 + systemPrompt 流程引导 + 「DCS 任务/设置」HTTP 路由
 lib/dcs-client.js    dcs 二进制管理、PAT 登录、命令执行、公共库检索
-lib/atlas.js         数据库全图谱（片区/官方工具库/关键词映射/容器公共数据集/Genpilot 范式）
+lib/atlas.js         数据库全图谱（片区/官方工具库/关键词映射/容器公共数据集/Genpilot 范式/模型列表）
 lib/audit.js         脚本静态审计（shell/python/WDL 分级报告）
 lib/plan.js          Plan.md 生成（Genpilot 执行计划文档）
 lib/report.js        学术 HTML 报告生成（图片 base64 内嵌）
+lib/tasks.js         任务存储（按会话作用域）+ 局部字段更新（model/resources）
+lib/client.js        浏览器半：「DCS 任务」tab + 「DCS Cloud」设置页（settings.section）
 docs/dcs-cli-reference.md     dcs CLI 完整能力图谱（命令/参数/JSON 输出）
 docs/dcs-database-atlas.md    数据库全图谱（片区公共库/官方工具库/Genpilot 范式）
 cordis.patch.yml     组合 patch（insert 行）
