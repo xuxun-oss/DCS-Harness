@@ -12,7 +12,8 @@
 | `dcs config show` / `get <k>` / `set <k> <v>` / `init` / `language zh\|en` | 本地配置（`base_url`、`copilot_base_url`、`current_project`、`current_region` 等） |
 
 - `base_url` 默认 `https://www.dcs.cloud`；`copilot_base_url` 默认 `https://genpilot-release.dcs.cloud`。
-- 未登录常见错误码：`83002 / 70102 / 41104`；未选项目：`83003 / 41102`。
+- 未登录常见错误码：`83002 / 70102 / 41104`；未选项目：`83003 / 41102`；容器未开：`83006`；open 后立即 exec：`83007`（等 3–5 秒再 exec）。
+- 失败响应的 JSON 信封：`{ data, error: {type, detail:{business_code,message}, hint}, exit_code, message, metadata, request_id, version }`；`error` 是嵌套对象，解析时需压平为可读文本。
 
 ## 2. 全局约定
 
@@ -35,8 +36,9 @@
 ### data（数据文件，`/Files` 文件结构）
 `data ls [path] [-l -t -s --page --page-size]` / `find [-n 通配 -t f|d -s +100M -e/-a/-N/-k/-w/-u/-T]` / `info -p <path>` / `cd` / `pwd` / `rm` / `copy` / `move`
 `data download -T <web|raysync|ossutil|tosutil|obsutil|aws|mount> -p <path> [-t 本机目录] [-m client|command]`
-`data upload --cluster-mode <other|batch_import> -p <集群路径> -t /Files/...`
-`data push <src> <dest>`（容器 /work → /Files，`-b` 表格模式）
+`data upload [--type web|oss] [--cluster-mode other|batch_import] -p <path> -t /Files/...`（`--type`：本机文件上传，web≤100MB/oss 大文件直传；`--cluster-mode`：集群文件 other（逗号分隔多路径）或批量导入表 batch_import）
+`data push <src> [dest] [-b]`（容器 /work → /Files，`-b` 表格模式：DEST 为表名）
+`data upload --json @params.json`（JSON 入参，`--rows` 数组逐行 file_path + sample_id）
 
 - 根目录结构：`/Files/{ReferenceData, RawData, ManualData, ResultData(Workflow/Notebook)}`
 - web 下载仅 ≤200MB 且非 FastQ/bam。
@@ -62,11 +64,11 @@
 
 ### workflow（WDL 工作流，复用 Genpilot 现有方案）
 `workflow ls [-n 名 -p 公共库 -t 标签 -u 人 -a --page --page-size]`
-`workflow info -n <名> [-v 版本] [-p]`
-`workflow plan -n <名> [-n <名2>...]`（**agent 友好**：JSON 的 `wdl_plan` 对齐 Hermes `dcs_wdl_plan`）
-`workflow check_parameter -n <名> [-v]`（**agent 友好**：JSON 的 `wdl_parameter` 用中文列名：参数名/类型/必填/说明）
-`workflow run -n <名> [-v] [-e 实体 -i k=v ... | -j json文件 | --table 表格] [-o /Files/...]`
-`workflow tasks [-s 状态 -e 实体 -n 名 -i id -u 人 --time -a]` / `task_info <id>` / `task_log <id> [--stdout --stderr --script --intermediate -n 步骤]` / `start` / `cancel` / `rm`
+`workflow info -n <名> [-v 版本] [-p]`（唯一支持 `-p` 的查询子命令）
+`workflow plan -n <名> [-n <名2>...] [-v]`（**agent 友好**：JSON 的 `wdl_plan` 对齐 Hermes `dcs_wdl_plan`；`-n` 可重复=执行顺序，不支持 `-p`）
+`workflow check_parameter -n <名> [-v]`（**agent 友好**：JSON 的 `wdl_parameter` 用中文列名：参数名/类型/必填/说明；不支持 `-p`）
+`workflow run -n <名> [-v] [-e 实体 -i k=v ... | -j json文件 | --table 表格] [-o /Files/...]`（投递命令，二进制实为 `run`；官方 README 写的 `submit_task` 与实际二进制不符）
+`workflow tasks [-a -e 实体 -i id -n 名 -s 状态 --time 区间]` / `task_info <id>` / `task_log <id> [--stdout --stderr --script --intermediate -n 步骤]` / `start` / `cancel` / `rm`（tasks 无 `-u`）
 
 ### billing / history
 `billing ls`；`history ls` / `get <request_id>`
